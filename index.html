@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlas Digital - Caminho de Cora Coralina</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== VARIÁVEIS E RESET ===== */
+        :root {
+            --primary-color: #b6733c;
+            --secondary-color: #1d2939;
+            --accent-color: #4a8eff;
+            --light-color: #f9fafb;
+            --dark-color: #101828;
+            --gray-color: #475467;
+            --light-gray: #98a2b3;
+            --sidebar-width: 280px;
+            --panel-width: 350px;
+            --header-height: 70px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background-color: var(--light-color);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #app {
+            display: grid;
+            grid-template-columns: var(--sidebar-width) 1fr var(--panel-width);
+            grid-template-rows: var(--header-height) 1fr;
+            height: 100vh;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            grid-column: 1 / -1;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            z-index: 10;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .logo-icons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo-info {
+            display: flex;
+           flex-direction: column;
+        }
+
+        .logo-lapig {
+            width: 80px;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        .logo-ccc {
+            width: 80px;
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+        }
+
+        .logo-subtext {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+            display: block;
+            font-weight: 400;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* ===== SIDEBAR SIMPLIFICADO ===== */
+        .sidebar {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 25px 0;
+            overflow-y: auto;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header {
+            padding: 0 25px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-title {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 5px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 25px;
+            color: rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .nav-link.active {
+            background-color: rgba(182, 115, 60, 0.2);
+            color: white;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .nav-link.active:before {
+            content: '';
+            position: absolute;
+            right: 15px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* ===== MAP CONTAINER ===== */
+        .map-container {
+            position: relative;
+            overflow: hidden;
+        }
+
+        #mainMap {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .map-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .map-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius);
+            background-color: white;
+            border: none;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--dark-color);
+        }
+
+        .map-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* ===== INFO PANEL ===== */
+        .info-panel {
+            background-color: white;
+            border-left: 1px solid #e5e7eb;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(182, 115, 60, 0.2);
+        }
+
+        .panel-title {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 8px;
+        }
+
+        .panel-subtitle {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .theme-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            background-color: rgba(182, 115, 60, 0.1);
+            color: var(--primary-color);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        .panel-content {
+            flex-grow: 1;
+        }
+
+        .theme-description {
+            margin-bottom: 25px;
+            line-height: 1.7;
+            color: var(--gray-color);
+        }
+
+        .panel-footer {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 0.85rem;
+            color: var(--light-gray);
+            text-align: center;
+        }
+
+        /* ===== RESPONSIVIDADE ===== */
+        @media (max-width: 1200px) {
+            :root {
+                --sidebar-width: 250px;
+                --panel-width: 320px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            #app {
+                grid-template-columns: 1fr;
+                grid-template-rows: var(--header-height) 1fr auto;
+            }
+            
+            .sidebar {
+                position: fixed;
+                left: -100%;
+                top: var(--header-height);
+                width: 280px;
+                height: calc(100vh - var(--header-height));
+                z-index: 100;
+                transition: var(--transition);
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .info-panel {
+                position: fixed;
+                right: -100%;
+                top: var(--header-height);
+                width: 100%;
+                max-width: 400px;
+                height: calc(100vh - var(--header-height));
+                z-index: 100;
+                transition: var(--transition);
+            }
+            
+            .info-panel.active {
+                right: 0;
+            }
+            
+            .menu-toggle {
+                display: block !important;
+            }
+            
+            .panel-toggle {
+                display: block !important;
+            }
+        }
+
+        /* ===== ELEMENTOS DE CONTROLE RESPONSIVO ===== */
+        .menu-toggle, .panel-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--dark-color);
+            cursor: pointer;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: 100%;
+            height: calc(100vh - var(--header-height));
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                
+            <div class="logo-icons">
+                <img src="logolapig.png" alt="Logo Lapig" class="logo-lapig">
+                <img src="logoccc.png" alt="Logo CCC" class="logo-ccc">
+            <div>
+                
+            <div class="logo-info">
+                <div class="logo-text">
+                    Atlas Digital Ambiental
+                </div>
+
+                <span class="logo-subtext">
+                    Caminho de Cora Coralina
+                </span>
+            </div>
+        
+        </div>
+            
+            <div class="header-controls">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-layer-group"></i>
+                </button>
+                
+                <button class="panel-toggle" id="panelToggle">
+                    <i class="fas fa-info-circle"></i>
+                </button>
+            </div>
+        </header>
+        
+        <!-- Overlay para mobile -->
+        <div class="overlay" id="overlay"></div>
+        
+        <!-- Sidebar Simplificado -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">Temas Geográficos</div>
+                <div class="sidebar-subtitle">Selecione um tema para explorar</div>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a class="nav-link active" data-theme="municipios">
+                        <i class="fas fa-city nav-icon"></i>
+                        <span>Municípios do Caminho</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-theme="relevo">
+                        <i class="fas fa-mountain nav-icon"></i>
+                        <span>Relevo (Geomorfologia)</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-theme="altimetria">
+                        <i class="fas fa-chart-line nav-icon"></i>
+                        <span>Altimetria</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-theme="solos">
+                        <i class="fas fa-seedling nav-icon"></i>
+                        <span>Solos (Pedologia)</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-theme="hidrografia">
+                        <i class="fas fa-water nav-icon"></i>
+                        <span>Hidrografia</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-theme="conservacao">
+                        <i class="fas fa-tree nav-icon"></i>
+                        <span>Unidades de Conservação</span>
+                    </a>
+                <li class="nav-item">
+                     <a class="nav-link" data-theme="manifestacoes">
+                        <i class="fas fa-theater-masks nav-icon"></i>
+                        <span>Manifestações Culturais</span>
+                     </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <!-- Mapa Principal -->
+        <main class="map-container">
+            <iframe id="mainMap" src="https://www.google.com/maps/d/u/5/embed?mid=1RGUxSnBjx45E-nFOCAxenue7I5NRJB0&ehbc=2E312F" frameborder="0"></iframe>
+            
+            <div class="map-controls">
+                <button class="map-btn" id="fullscreen">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button class="map-btn" id="resetView">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button class="map-btn" id="printMap">
+                    <i class="fas fa-print"></i>
+                </button>
+            </div>
+        </main>
+        
+        <!-- Painel de Informações -->
+        <aside class="info-panel" id="infoPanel">
+            <div class="panel-header">
+                <h2 class="panel-title" id="panelThemeTitle">Municípios do Caminho</h2>
+                <div class="panel-subtitle" id="panelSubtitle">Geografia Humana e Territorial</div>
+                <div class="theme-indicator">Tema Ativo</div>
+            </div>
+            
+            <div class="panel-content">
+                <div class="theme-description" id="themeDescription">
+                    No mapa, cada polígono colorido representa um município do Caminho de Cora Coralina. Essas áreas mostram os limites de cada cidade e guardam as histórias que fazem parte do percurso.
+                    <br><br>
+                    Ao clicar em qualquer polígono colorido, você poderá conhecer a história daquele município: como ele surgiu, o que o torna especial e qual é sua importância dentro do Caminho. Junto com o texto, aparecem imagens que ajudam a visualizar o lugar e imaginar como ele é. 
+                    <br><br>
+                    Este projeto foi desenvolvido em parceria com a Associação Caminho de Cora Coralina, no âmbito do Programa Águas de Cora, coordenado por Eliane de Castro e Bismarque Villa Real.
+                    <br><br>
+                    A coordenação técnica e científica pelo LAPIG esteve sob responsabilidade da Prof.ª Elaine Barbosa da Silva.
+                    <br><br>
+                    Equipe LAPIG: Caio Rabelo Lopes, Carolina Ribeiro Coelho, Eduarda Batista Alves Meurer, Isabella de Freitas Oliveira, Luana Estrozi Brandão, Roberto Urzeda, Sanae Mori Belo, Valéria Lima da Silva e Welington Alves Oliveira.
+                </div>
+            </div>
+            
+            <div class="panel-footer">
+                Atlas Digital Ambiental - Ferramenta educativa para leitura integrada do território
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        // URLs dos mapas do Google MyMaps para cada tema
+        const themeMaps = {
+            municipios: "https://www.google.com/maps/d/u/5/embed?mid=1RGUxSnBjx45E-nFOCAxenue7I5NRJB0&ehbc=2E312F",
+            relevo: "https://www.google.com/maps/d/u/5/embed?mid=1imqNgH2o4Bd2Fl2jWg8dZdSqP_j_HAg&ehbc=2E312F",
+            altimetria: "https://www.google.com/maps/d/u/5/embed?mid=1ru0S22EO6VCNixXXCBe2Mnyb8NeYIwQ&ehbc=2E312F", 
+            
+            solos: "https://www.google.com/maps/d/u/5/embed?mid=1RdUUxWv2kJVDXpFwcfpx7mM1hyecgEM&ehbc=2E312F",
+            
+            hidrografia: "https://www.google.com/maps/d/u/5/embed?mid=1r1UIrjqo-0pYqJUGIAgN7e4TnqQll40&ehbc=2E312F",
+            conservacao: "https://www.google.com/maps/d/u/5/embed?mid=1KpLfQ560waxevatxww8uHnIsb9v3g5A&ehbc=2E312F",
+            manifestacoes: "https://www.google.com/maps/d/u/5/embed?mid=1AkJuBIlcM-BBTgT0j4TU4fDHQ-Mq3N8&ehbc=2E312F"
+        };
+
+        // Títulos e descrições para cada tema
+        const themeData = {
+            municipios: {
+                title: "Municípios do Caminho",
+                subtitle: "Geografia Humana e Territorial",
+                description: "No mapa, cada polígono colorido representa um município do Caminho de Cora Coralina. Essas áreas mostram os limites de cada cidade e guardam as histórias que fazem parte do percurso. <br><br> Ao clicar em qualquer polígono colorido, você poderá conhecer a história daquele município: como ele surgiu, o que o torna especial e qual é sua importância dentro do Caminho. Junto com o texto, aparecem imagens que ajudam a visualizar o lugar e imaginar como ele é. <br><br> Este projeto foi desenvolvido em parceria com a Associação Caminho de Cora Coralina, no âmbito do Programa Águas de Cora, coordenado por Eliane de Castro e Bismarque Villa Real.<br><br> A coordenação técnica e científica pelo LAPIG esteve sob responsabilidade da Prof.ª Elaine Barbosa da Silva. <br><br> Equipe LAPIG: Caio Rabelo Lopes, Carolina Ribeiro Coelho, Eduarda Batista Alves Meurer, Isabella de Freitas Oliveira, Luana Estrozi Brandão, Roberto Urzeda, Sanae Mori Belo, Valéria Lima da Silva e Welington Alves Oliveira."
+                },
+            relevo: {
+                title: "Geomorfologia (Relevo)",
+                subtitle: "Formas da Superfície Terrestre",
+                description: "Este mapa interativo é um convite para você desbravar as paisagens e os segredos do Caminho de Cora Coralina no seu próprio ritmo, guiado pela sua curiosidade. <br><br> A área em destaque ilustra toda a extensão territorial da rota, cruzando os limites de diversos municípios goianos.<br><br> Para acessar o contexto geral do tema que você está visualizando, basta dar um clique sobre qualquer uma das grandes áreas coloridas que formam o mapa. <br><br> Para conhecer as informações específicas de cada localidade, clique nos pequenos marcadores azuis distribuídos ao longo do mapa. Cada um desses pontos representa a sede de um município do percurso. Ao selecioná-los, uma janela se abrirá com textos detalhados e fotografias, revelando como a geografia e a história ganham vida em cada uma dessas cidades."
+            },
+            altimetria: {
+                title: "Altimetria",
+                subtitle: "Variações de Altitude",
+                description: "Este mapa interativo é um convite para você desbravar as paisagens e os segredos do Caminho de Cora Coralina no seu próprio ritmo, guiado pela sua curiosidade. <br><br> A área em destaque ilustra toda a extensão territorial da rota, cruzando os limites de diversos municípios goianos.<br><br> Para acessar o contexto geral do tema que você está visualizando, basta dar um clique sobre qualquer uma das grandes áreas coloridas que formam o mapa. <br><br> Para conhecer as informações específicas de cada localidade, clique nos pequenos marcadores azuis distribuídos ao longo do mapa. Cada um desses pontos representa a sede de um município do percurso. Ao selecioná-los, uma janela se abrirá com textos detalhados e fotografias, revelando como a geografia e a história ganham vida em cada uma dessas cidades."
+            },
+            solos: {
+                title: "Solos (Pedologia)",
+                subtitle: "Tipos e Características do Solo",
+                description: "Este mapa interativo é um convite para você desbravar as paisagens e os segredos do Caminho de Cora Coralina no seu próprio ritmo, guiado pela sua curiosidade. <br><br> A área em destaque ilustra toda a extensão territorial da rota, cruzando os limites de diversos municípios goianos.<br><br> Para acessar o contexto geral do tema que você está visualizando, basta dar um clique sobre qualquer uma das grandes áreas coloridas que formam o mapa. <br><br> Para conhecer as informações específicas de cada localidade, clique nos pequenos marcadores azuis distribuídos ao longo do mapa. Cada um desses pontos representa a sede de um município do percurso. Ao selecioná-los, uma janela se abrirá com textos detalhados e fotografias, revelando como a geografia e a história ganham vida em cada uma dessas cidades."
+            },
+            hidrografia: {
+                title: "Hidrografia",
+                subtitle: "Rios e Bacias Hidrográficas",
+                description: "Este mapa interativo é um convite para você desbravar as paisagens e os segredos do Caminho de Cora Coralina no seu próprio ritmo, guiado pela sua curiosidade. <br><br> A área em destaque ilustra toda a extensão territorial da rota, cruzando os limites de diversos municípios goianos.<br><br> Para acessar o contexto geral do tema que você está visualizando, basta dar um clique sobre qualquer uma das grandes áreas coloridas que formam o mapa. <br><br> Para conhecer as informações específicas de cada localidade, clique nos pequenos marcadores azuis distribuídos ao longo do mapa. Cada um desses pontos representa a sede de um município do percurso. Ao selecioná-los, uma janela se abrirá com textos detalhados e fotografias, revelando como a geografia e a história ganham vida em cada uma dessas cidades."
+            },
+            conservacao: {
+                title: "Unidades de Conservação",
+                subtitle: "Áreas Protegidas",
+                description: "Este mapa interativo é um convite para você desbravar as paisagens e os segredos do Caminho de Cora Coralina no seu próprio ritmo, guiado pela sua curiosidade. <br><br> A área em destaque ilustra toda a extensão territorial da rota, cruzando os limites de diversos municípios goianos.<br><br> Para acessar o contexto geral do tema que você está visualizando, basta dar um clique sobre qualquer uma das grandes áreas coloridas que formam o mapa. <br><br> Para conhecer as informações específicas de cada localidade, clique nos pequenos marcadores azuis distribuídos ao longo do mapa. Cada um desses pontos representa a sede de um município do percurso. Ao selecioná-los, uma janela se abrirá com textos detalhados e fotografias, revelando como a geografia e a história ganham vida em cada uma dessas cidades."
+            },
+            manifestacoes: {
+                title: "Manifestações Culturais",
+                subtitle: "Cultura e Patrimônio Imaterial",
+                description: "Este mapa interativo é um convite para você desbravar as paisagens e os segredos do Caminho de Cora Coralina no seu próprio ritmo, guiado pela sua curiosidade. <br><br> A área em destaque ilustra toda a extensão territorial da rota, cruzando os limites de diversos municípios goianos.<br><br> Para acessar o contexto geral do tema que você está visualizando, basta dar um clique sobre qualquer uma das grandes áreas coloridas que formam o mapa. <br><br> Para conhecer as informações específicas de cada localidade, clique nos pequenos marcadores azuis distribuídos ao longo do mapa. Cada um desses pontos representa a sede de um município do percurso. Ao selecioná-los, uma janela se abrirá com textos detalhados e fotografias, revelando como a geografia e a história ganham vida em cada uma dessas cidades."
+            }
+        };
+
+        // Elementos DOM
+        const menuToggle = document.getElementById('menuToggle');
+        const panelToggle = document.getElementById('panelToggle');
+        const sidebar = document.getElementById('sidebar');
+        const infoPanel = document.getElementById('infoPanel');
+        const overlay = document.getElementById('overlay');
+        const navLinks = document.querySelectorAll('.nav-link[data-theme]');
+        const mainMap = document.getElementById('mainMap');
+
+        // Função para mudar o mapa e conteúdo
+        function changeTheme(theme) {
+            // Atualizar mapa
+            const mapUrl = themeMaps[theme] || themeMaps.municipios;
+            mainMap.src = mapUrl;
+            
+            // Atualizar dados do painel
+            const data = themeData[theme];
+            if (!data) return;
+            
+            document.getElementById('panelThemeTitle').textContent = data.title;
+            document.getElementById('panelSubtitle').textContent = data.subtitle;
+            document.getElementById('themeDescription').innerHTML = data.description;
+        }
+
+        // Inicializar com o tema municípios
+        changeTheme('municipios');
+
+        // Alternar sidebar no mobile
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+
+        // Alternar painel no mobile
+        panelToggle.addEventListener('click', () => {
+            infoPanel.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+
+        // Fechar painéis ao clicar no overlay
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            infoPanel.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+
+        // Trocar tema ao clicar nos itens do menu
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                // Remover classe active de todos
+                navLinks.forEach(l => l.classList.remove('active'));
+                // Adicionar ao clicado
+                this.classList.add('active');
+                
+                // Obter e mudar tema
+                const theme = this.getAttribute('data-theme');
+                changeTheme(theme);
+                
+                // Fechar menu no mobile
+                if (window.innerWidth <= 992) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+
+        // Controles do mapa
+        document.getElementById('fullscreen').addEventListener('click', () => {
+            const elem = document.querySelector('.map-container');
+            if (!document.fullscreenElement) {
+                elem.requestFullscreen().catch(err => {
+                    console.log(`Erro ao tentar entrar em tela cheia: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        });
+
+        document.getElementById('resetView').addEventListener('click', () => {
+            // Recarregar o mapa para voltar à visão inicial
+            mainMap.src = mainMap.src;
+        });
+
+        document.getElementById('printMap').addEventListener('click', () => {
+            window.print();
+        });
+
+        // Atualizar automaticamente o tamanho do iframe quando entrar em tela cheia
+        document.addEventListener('fullscreenchange', () => {
+            setTimeout(() => {
+                mainMap.style.height = '100%';
+                mainMap.style.width = '100%';
+            }, 100);
+        });
+    </script>
+</body>
+</html>
